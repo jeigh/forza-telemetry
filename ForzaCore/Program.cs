@@ -3,34 +3,38 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using ElectronCgi.DotNet;
+using ForzaCore.DataAccessLayer;
 using Newtonsoft.Json.Linq;
 
 namespace ForzaCore
 {
-    class Program
+    public class Program
     {
         private const int recordRateMS = 50;
-        private static bool recordingData = false;
+        private static bool recordingData = true;
         private static bool isRaceOn = false;
-        private static DataPacket data = new DataPacket();
         private const int FORZA_DATA_OUT_PORT = 5300;
         private const int FORZA_HOST_PORT = 5200;
         private static Connection connection = new ConnectionBuilder().WithLogging().Build();
-        private static string currentFilename = "./data/" + DateTime.Now.ToFileTime() + ".csv";
+        private static IDataAccessLayer _dal = new SqlDataAccessLayer(); // CsvDataAccessLayer();
+        
 
         static void Main(string[] args)
         {
             #region udp stuff
             var ipEndPoint = new IPEndPoint(IPAddress.Loopback, FORZA_DATA_OUT_PORT);
             var senderClient = new UdpClient(FORZA_HOST_PORT);
+            
             var receiverTask = Task.Run(async () =>
             {
                 var client = new UdpClient(FORZA_DATA_OUT_PORT);
+                
                 while (true)
                 {
                     await client.ReceiveAsync().ContinueWith(receive =>
@@ -45,23 +49,16 @@ namespace ForzaCore
                         // send data to node here
                         if (resultBuffer.IsRaceOn())
                         {
-                            data = ParseData(resultBuffer);
-                            SendData(data);
+                            var data = ParseData(resultBuffer);
+                            //SendData(data);
+                            _dal.RecordData(data);
                         }
                     });
                 }
             });
-            var recorderTask = Task.Run(async () =>
-            {
-                while (true)
-                {
-                    if (recordingData && isRaceOn)
-                    {
-                        RecordData(data);
-                        await Task.Delay(recordRateMS);
-                    }
-                }
-            });
+
+            //Task recorderTask = Task.Run(async () => await NewMethod(data));
+
             #endregion
 
             #region messaging between dotnet and node
@@ -74,7 +71,7 @@ namespace ForzaCore
             {
                 if (recordingData)
                 {
-                    StopRecordingSession();
+                    SetRecording(false);
                 }
                 else
                 {
@@ -86,20 +83,31 @@ namespace ForzaCore
             #endregion
         }
 
+        static void StartNewRecordingSession()
+        {
+            _dal.CurrentFileName = "./data/" + DateTime.Now.ToFileTime() + ".csv";
+            recordingData = true;
+
+            IEnumerable<string> props = new DataPacket().GetType()
+                 .GetProperties()
+                 .Where(p => p.CanRead)
+                 .Select(p => p.Name);
+            StringBuilder sb = new StringBuilder();
+            sb.AppendJoin(',', props);
+
+            _dal.WriteHeader(sb);
+        }
+
+
+
         static void SendData(DataPacket data)
         {
             string dataString = JsonSerializer.Serialize(data);
             connection.Send("new-data", dataString);
         }
 
-        static void RecordData(DataPacket data)
-        {
-            string dataToWrite = DataPacketToCsvString(data);
-            const int BufferSize = 65536;  // 64 Kilobytes
-            StreamWriter sw = new StreamWriter(currentFilename, true, Encoding.UTF8, BufferSize);
-            sw.WriteLine(dataToWrite);
-            sw.Close();
-        }
+
+
 
         static DataPacket ParseData(byte[] packet)
         {
@@ -197,6 +205,9 @@ namespace ForzaCore
             return data;
         }
 
+        static void SetRecording(bool isRecording) => 
+            recordingData = isRecording;
+
         static bool AdjustToBufferType(int bufferLength)
         {
             switch (bufferLength)
@@ -217,38 +228,7 @@ namespace ForzaCore
             }
         }
 
-        static void StartNewRecordingSession()
-        {
-            currentFilename = "./data/" + DateTime.Now.ToFileTime() + ".csv";
-            recordingData = true;
 
-            IEnumerable<string> props = data.GetType()
-                 .GetProperties()
-                 .Where(p => p.CanRead)
-                 .Select(p => p.Name);
-            StringBuilder sb = new StringBuilder();
-            sb.AppendJoin(',', props);
 
-            StreamWriter sw = new StreamWriter(currentFilename, true, Encoding.UTF8);
-            sw.WriteLine(sb.ToString());
-            sw.Close();
-        }
-
-        static void StopRecordingSession()
-        {
-            recordingData = false;
-        }
-
-        static string DataPacketToCsvString(DataPacket packet)
-        {
-            IEnumerable<object> values = data.GetType()
-                 .GetProperties()
-                 .Where(p => p.CanRead)
-                 .Select(p => p.GetValue(packet, null));
-
-            StringBuilder sb = new StringBuilder();
-            sb.AppendJoin(',', values);
-            return sb.ToString();
-        }
     }
 }
