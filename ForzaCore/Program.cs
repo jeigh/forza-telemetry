@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -19,7 +20,7 @@ namespace ForzaCore
         private const int recordRateMS = 50;
         private static bool recordingData = true;
         private static bool isRaceOn = false;
-        private const int FORZA_DATA_OUT_PORT = 5300;
+        private static int FORZA_DATA_OUT_PORT = int.Parse(ConfigurationManager.AppSettings["ListenOnPort"]);
         private const int FORZA_HOST_PORT = 5200;
         private static Connection connection = new ConnectionBuilder().WithLogging().Build();
         private static IDataAccessLayer _dal = new SqlDataAccessLayer(); // CsvDataAccessLayer();
@@ -34,30 +35,39 @@ namespace ForzaCore
             var receiverTask = Task.Run(async () =>
             {
                 var client = new UdpClient(FORZA_DATA_OUT_PORT);
-                
+                DataPacket previousDataPacket = new();
                 while (true)
                 {
                     await client.ReceiveAsync().ContinueWith(receive =>
                     {
-                        var resultBuffer = receive.Result.Buffer;
+                        byte[] resultBuffer = receive.Result.Buffer;
+                        
                         if (!AdjustToBufferType(resultBuffer.Length))
                         {
                             connection.Send("new-data", $"buffer not the correct length. length is {resultBuffer.Length}");
                             return;
                         }
+
                         isRaceOn = resultBuffer.IsRaceOn();
-                        // send data to node here
+                        
                         if (resultBuffer.IsRaceOn())
                         {
-                            var data = ParseData(resultBuffer);
+
+                            DataPacket data = ParseData(resultBuffer);
                             //SendData(data);
-                            _dal.RecordData(data);
+                            if (!previousDataPacket.DeepCompare(data))
+                            {
+                                previousDataPacket = data;
+                                _dal.RecordData(data);
+                            }
+                                
+                            
                         }
+                        
                     });
+                    
                 }
             });
-
-            //Task recorderTask = Task.Run(async () => await NewMethod(data));
 
             #endregion
 

@@ -90,5 +90,85 @@
         public int Steer { get; set; }
         public uint NormalDrivingLine { get; set; }
         public uint NormalAiBrakeDifference { get; set; }
+
+        public bool DeepCompare(DataPacket other)
+        {
+            if (this.AccelerationX != other.AccelerationX) return false;
+            if (this.AccelerationY != other.AccelerationY) return false;
+            if (this.AccelerationZ != other.AccelerationZ) return false;
+            if (this.VelocityX != other.VelocityX) return false;
+            if (this.VelocityY != other.VelocityY) return false;
+            if (this.VelocityZ != other.VelocityZ) return false;
+            if (this.AngularVelocityX != other.AngularVelocityX) return false;
+            if (this.AngularVelocityY != other.AngularVelocityY) return false;
+            if (this.AngularVelocityZ != other.AngularVelocityZ) return false;
+            if (this.Yaw != other.Yaw) return false;
+            if (this.Pitch != other.Pitch) return false;
+            if (this.Roll != other.Roll) return false;
+            if (this.NormalizedSuspensionTravelFrontLeft != other.NormalizedSuspensionTravelFrontLeft) return false;
+            if (this.NormalizedSuspensionTravelFrontRight != other.NormalizedSuspensionTravelFrontRight) return false;
+            if (this.NormalizedSuspensionTravelRearLeft != other.NormalizedSuspensionTravelRearLeft) return false;
+            if (this.NormalizedSuspensionTravelRearRight != other.NormalizedSuspensionTravelRearRight) return false;
+            if (this.TireSlipRatioFrontLeft != other.TireSlipRatioFrontLeft) return false;
+            if (this.TireSlipRatioFrontRight != other.TireSlipRatioFrontRight) return false;
+            if (this.TireSlipRatioRearLeft != other.TireSlipRatioRearLeft) return false;
+            if (this.TireSlipRatioRearRight != other.TireSlipRatioRearRight) return false;
+            if (this.WheelRotationSpeedFrontLeft != other.WheelRotationSpeedFrontLeft) return false;
+            if (this.WheelRotationSpeedFrontRight != other.WheelRotationSpeedFrontRight) return false;
+            if (this.WheelRotationSpeedRearLeft != other.WheelRotationSpeedRearLeft) return false;
+            if (this.WheelRotationSpeedRearRight != other.WheelRotationSpeedRearRight) return false;
+            if (this.WheelOnRumbleStripFrontLeft != other.WheelOnRumbleStripFrontLeft) return false;
+            if (this.WheelOnRumbleStripFrontRight != other.WheelOnRumbleStripFrontRight) return false;
+            if (this.WheelOnRumbleStripRearLeft != other.WheelOnRumbleStripRearLeft) return false;
+            if (this.WheelOnRumbleStripRearRight != other.WheelOnRumbleStripRearRight) return false;
+            if (this.WheelInPuddleDepthFrontLeft != other.WheelInPuddleDepthFrontLeft) return false;
+            if (this.WheelInPuddleDepthFrontRight != other.WheelInPuddleDepthFrontRight) return false;
+            if (this.WheelInPuddleDepthRearLeft != other.WheelInPuddleDepthRearLeft) return false;
+            if (this.WheelInPuddleDepthRearRight != other.WheelInPuddleDepthRearRight) return false;
+            if (this.SurfaceRumbleFrontLeft != other.SurfaceRumbleFrontLeft) return false;
+            if (this.SurfaceRumbleFrontRight != other.SurfaceRumbleFrontRight) return false;
+            if (this.SurfaceRumbleRearLeft != other.SurfaceRumbleRearLeft) return false;
+            if (this.SurfaceRumbleRearRight != other.SurfaceRumbleRearRight) return false;
+            if (this.TireSlipAngleFrontLeft != other.TireSlipAngleFrontLeft) return false;
+            if (this.TireSlipAngleFrontRight != other.TireSlipAngleFrontRight) return false;
+            if (this.TireSlipAngleRearLeft != other.TireSlipAngleRearLeft) return false;
+            if (this.TireSlipAngleRearRight != other.TireSlipAngleRearRight) return false;
+            if (this.TireCombinedSlipFrontLeft != other.TireCombinedSlipFrontLeft) return false;
+            if (this.TireCombinedSlipFrontRight != other.TireCombinedSlipFrontRight) return false;
+            if (this.TireCombinedSlipRearLeft != other.TireCombinedSlipRearLeft) return false;
+            if (this.TireCombinedSlipRearRight != other.TireCombinedSlipRearRight) return false;
+            if (this.SuspensionTravelMetersFrontLeft != other.SuspensionTravelMetersFrontLeft) return false;
+            if (this.SuspensionTravelMetersFrontRight != other.SuspensionTravelMetersFrontRight) return false;
+            if (this.SuspensionTravelMetersRearLeft != other.SuspensionTravelMetersRearLeft) return false;
+            if (this.SuspensionTravelMetersRearRight != other.SuspensionTravelMetersRearRight) return false;
+            if (this.CarOrdinal != other.CarOrdinal) return false;
+            if (this.CarClass != other.CarClass) return false;
+            if (this.CarPerformanceIndex != other.CarPerformanceIndex) return false;
+            if (this.DrivetrainType != other.DrivetrainType) return false;
+            if (this.NumCylinders != other.NumCylinders) return false;
+            if (this.PositionX != other.PositionX) return false;
+            if (this.PositionY != other.PositionY) return false;
+            if (this.PositionZ != other.PositionZ) return false;
+            if (this.Speed != other.Speed) return false;
+            if (this.Power != other.Power) return false;
+            if (this.Torque != other.Torque) return false;
+            if (this.TireTempFl != other.TireTempFl) return false;
+            if (this.TireTempFr != other.TireTempFr) return false;
+            if (this.TireTempRl != other.TireTempRl) return false;
+            if (this.TireTempRr != other.TireTempRr) return false;
+            if (this.Boost != other.Boost) return false;
+            if (this.Fuel != other.Fuel) return false;
+            if (this.Distance != other.Distance) return false;
+            if (this.BestLapTime != other.BestLapTime) return false;
+            if (this.LastLapTime != other.LastLapTime) return false;
+            if (this.CurrentLapTime != other.CurrentLapTime) return false;
+            if (this.CurrentRaceTime != other.CurrentRaceTime) return false;
+            if (this.Lap != other.Lap) return false;
+            if (this.RacePosition != other.RacePosition) return false;
+            return true;
+        }
+
     }
+
+    
 }

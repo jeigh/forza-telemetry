@@ -2,6 +2,7 @@
 using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 
@@ -32,7 +33,7 @@ namespace ForzaCore.DataAccessLayer
             catch (Exception ex)
             {
                 // put breakpoint here
-                
+                Console.WriteLine(ex.Message);
                 
                // throw;
             }
@@ -137,7 +138,7 @@ namespace ForzaCore.DataAccessLayer
 
         }
 
-        public const string ConnectionString = "Server=192.168.0.136;Database=ForzaAnalysis;User Id=ForzaAnalysisUser;Password=ForzaAnalysisPass;Encrypt=No;";
+        public static string ConnectionString = ConfigurationManager.ConnectionStrings["ForzaAnalysis"].ConnectionString;
         public const string InsertStatement = @"INSERT [dbo].[DataPacket] (
             [IsRaceOn]
            ,[TimestampMS]
